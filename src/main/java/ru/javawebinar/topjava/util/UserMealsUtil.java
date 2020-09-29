@@ -9,6 +9,7 @@ import java.time.LocalTime;
 import java.time.Month;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -31,66 +32,66 @@ public class UserMealsUtil {
 //        System.out.println(filteredByStreams(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000));
 
         //filteredByOneCycle(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000).forEach(System.out::println);
-
-
     }
 
     public static List<UserMealWithExcess> filteredByCycles(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
-        Map<LocalDate, Integer> map = new HashMap<>();
-
-        meals.forEach(meal -> map.merge(meal.getDateTime().toLocalDate(), meal.getCalories(), Integer::sum));
+        Map<LocalDate, Integer> totalCaloriesPerDay = new HashMap<>();
+        meals.forEach(meal -> totalCaloriesPerDay.merge(meal.getDateTime().toLocalDate(), meal.getCalories(), Integer::sum));
 
         List<UserMealWithExcess> list = new ArrayList<>();
-
         meals.forEach(meal -> {
             if (TimeUtil.isBetweenHalfOpen(meal.getDateTime().toLocalTime(), startTime, endTime))
-                list.add(new UserMealWithExcess(meal.getDateTime(), meal.getDescription(), meal.getCalories(), map.get(meal.getDateTime().toLocalDate()) > caloriesPerDay));
+                list.add(new UserMealWithExcess(
+                        meal.getDateTime(),
+                        meal.getDescription(),
+                        meal.getCalories(),
+                        totalCaloriesPerDay.get(meal.getDateTime().toLocalDate()) > caloriesPerDay
+                        ));
         });
-
         return list;
     }
 
     public static List<UserMealWithExcess> filteredByStreams(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
-        Map<LocalDate, Integer> map = meals.stream()
+        Map<LocalDate, Integer> totalCaloriesPerDay = meals.stream()
                 .collect(Collectors.groupingBy(meal -> meal.getDateTime().toLocalDate(), Collectors.summingInt(UserMeal::getCalories)));
 
         return meals.stream()
                 .filter(meal -> TimeUtil.isBetweenHalfOpen(meal.getDateTime().toLocalTime(), startTime, endTime))
-                .map(meal -> new UserMealWithExcess(meal.getDateTime(), meal.getDescription(), meal.getCalories(), map.get(meal.getDateTime().toLocalDate()) > caloriesPerDay))
+                .map(meal -> new UserMealWithExcess(
+                        meal.getDateTime(),
+                        meal.getDescription(),
+                        meal.getCalories(),
+                        totalCaloriesPerDay.get(meal.getDateTime().toLocalDate()) > caloriesPerDay
+                        ))
                 .collect(Collectors.toList());
     }
 
     //Optional 2
     public static List<UserMealWithExcess> filteredByOneCycle(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
-        ExecutorService tasksExecutor = Executors.newCachedThreadPool();
-
         List<Callable<Void>> tasks = new ArrayList<>();
-
-        List<UserMealWithExcess> result = Collections.synchronizedList(new ArrayList<>());
-
+        List<UserMealWithExcess> result = new CopyOnWriteArrayList<>();
         Map<LocalDate, Integer> totalCaloriesPerDay = new HashMap<>();
-
         meals.forEach(meal -> {
             totalCaloriesPerDay.merge(meal.getDateTime().toLocalDate(), meal.getCalories(), Integer::sum);
-
             if (TimeUtil.isBetweenHalfOpen(meal.getDateTime().toLocalTime(), startTime, endTime))
                 tasks.add(() -> {
-                    result.add(new UserMealWithExcess(meal.getDateTime(), meal.getDescription(), meal.getCalories(), totalCaloriesPerDay.get(meal.getDateTime().toLocalDate()) > caloriesPerDay));
+                    result.add(new UserMealWithExcess(
+                            meal.getDateTime(),
+                            meal.getDescription(),
+                            meal.getCalories(),
+                            totalCaloriesPerDay.get(meal.getDateTime().toLocalDate()) > caloriesPerDay)
+                    );
                     return null;
                 });
         });
 
+        ExecutorService tasksExecutor = Executors.newCachedThreadPool();
         try {
             tasksExecutor.invokeAll(tasks);
-
             tasksExecutor.shutdown();
-
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
         return result;
-
     }
-
 }
