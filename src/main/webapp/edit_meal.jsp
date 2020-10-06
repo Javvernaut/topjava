@@ -7,7 +7,7 @@
 <h3><a href="${ pageContext.request.contextPath }">Home</a></h3>
 <hr>
 <h2>Edit meal</h2>
-<form method="POST" action="${pageContext.request.contextPath}/meals/edit" name="formAddMeal">
+<form method="POST" action="${pageContext.request.contextPath}/meals" name="formAddMeal">
     <input type="hidden" name="id" value="${ meal.id }">
     <table>
         <tr>
@@ -20,7 +20,7 @@
         </tr>
         <tr>
             <td>Calories:</td>
-            <td><input type="text" name="calories" size="50" value="${ meal.calories}"></td>
+            <td><input type="number" name="calories" size="50" value="${ meal.calories}"></td>
         </tr>
     </table>
     <input type="submit" value="Save">
