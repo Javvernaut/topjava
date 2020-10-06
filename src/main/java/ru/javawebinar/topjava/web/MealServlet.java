@@ -1,6 +1,5 @@
 package ru.javawebinar.topjava.web;
 
-import org.slf4j.Logger;
 import ru.javawebinar.topjava.Main;
 import ru.javawebinar.topjava.model.MealTo;
 import ru.javawebinar.topjava.util.MealsUtil;
@@ -12,14 +11,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
 public class MealServlet extends HttpServlet {
-    private static final Logger log = getLogger(MealServlet.class);
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        List<MealTo> meals = MealsUtil.convertToMealTo(Main.MEALS, Main.CALORIES_PER_DAY);
-        request.setAttribute("meals", meals);
+        List<MealTo> mealsTo = MealsUtil.convertToMealTo(Main.MEALS_DAO.getAllRecords(), Main.CALORIES_PER_DAY);
+        request.setAttribute("mealsTo", mealsTo);
         request.getRequestDispatcher("/meals.jsp").forward(request, response);
     }
 }
