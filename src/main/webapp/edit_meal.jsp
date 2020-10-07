@@ -2,12 +2,13 @@
 <html lang="ru">
 <head>
     <title>Users</title>
+    <base href="${ pageContext.request.contextPath }/">
 </head>
 <body>
-<h3><a href="${ pageContext.request.contextPath }">Home</a></h3>
+<h3><a href>Home</a></h3>
 <hr>
 <h2>Edit meal</h2>
-<form method="POST" action="${pageContext.request.contextPath}/meals" name="formAddMeal">
+<form method="POST" action="meals" name="formAddMeal">
     <input type="hidden" name="id" value="${ meal.id }">
     <table>
         <tr>
@@ -24,7 +25,7 @@
         </tr>
     </table>
     <input type="submit" value="Save">
-    <input type="button" value="Cancel" onclick="window.location='${ pageContext.request.contextPath }/meals'">
+    <input type="button" value="Cancel" onclick="window.location='meals'">
 </form>
 
 </body>

@@ -8,37 +8,35 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class MealsInMemoryGenericDao implements GenericDao<Meal> {
+public class MealsInMemoryDao implements GenericDao<Meal> {
     private final AtomicLong idGenerator = new AtomicLong(0);
-    private final Map<Long, Meal> meals_map = new ConcurrentHashMap<>();
+    private final Map<Long, Meal> mealsMap = new ConcurrentHashMap<>();
 
     @Override
     public Meal getById(long id) {
-        return meals_map.get(id);
+        return mealsMap.get(id);
     }
 
     @Override
     public List<Meal> getAll() {
-        List<Meal> meals = new ArrayList<>(meals_map.values());
-        return meals;
+        return new ArrayList<>(mealsMap.values());
     }
 
     @Override
     public Meal add(Meal object) {
         long id = idGenerator.getAndIncrement();
         object.setId(id);
-        meals_map.put(id, object);
+        mealsMap.put(id, object);
         return object;
     }
 
     @Override
     public Meal update(Meal object) {
-        meals_map.replace(object.getId(), object);
-        return object;
+        return mealsMap.computeIfPresent(object.getId(), (key, value) -> object);
     }
 
     @Override
     public void delete(long id) {
-        meals_map.remove(id);
+        mealsMap.remove(id);
     }
 }

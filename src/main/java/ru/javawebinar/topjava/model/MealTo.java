@@ -21,7 +21,9 @@ public class MealTo {
         this.excess = excess;
     }
 
-    public long getId() { return id; }
+    public long getId() {
+        return id;
+    }
 
     public LocalDateTime getDateTime() {
         return dateTime;

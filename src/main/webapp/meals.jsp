@@ -4,13 +4,14 @@
 <html lang="ru">
 <head>
     <title>Users</title>
-    <link type= "text/css" rel="stylesheet" href="${ pageContext.request.contextPath }/css/styles.css" />
+    <base href="${ pageContext.request.contextPath }/">
+    <link type= "text/css" rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-<h3><a href="${ pageContext.request.contextPath }">Home</a></h3>
+<h3><a href>Home</a></h3>
 <hr>
 <h2>Meals</h2>
-<a href="${ pageContext.request.contextPath }/meals?action=add">Add Meal</a>
+<a href="meals?action=add">Add Meal</a>
 <br>
 <br>
 <table>
@@ -27,8 +28,8 @@
             <td><fmt:formatDate pattern="yyyy-MM-dd HH:mm" value="${ parsedDateTime }" /></td>
             <td>${ mealTo.description }</td>
             <td>${ mealTo.calories }</td>
-            <td><a href="${ pageContext.request.contextPath }/meals?action=update&id=${ mealTo.id }">Update</a></td>
-            <td><a href="${ pageContext.request.contextPath }/meals?action=delete&id=${ mealTo.id }">Delete</a></td>
+            <td><a href="meals?action=update&id=${ mealTo.id }">Update</a></td>
+            <td><a href="meals?action=delete&id=${ mealTo.id }">Delete</a></td>
         </tr>
     </c:forEach>
 </table>
