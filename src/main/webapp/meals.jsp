@@ -14,6 +14,30 @@
         .excess {
             color: red;
         }
+
+        .filter {
+            position: relative;
+        }
+
+        .row {
+            display: flex;
+            padding-top: 10px;
+        }
+
+        .block {
+            float: left;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        input, label {
+            display: block;
+        }
+
+        label {
+            text-align: center;
+            padding-bottom: 5px;
+        }
     </style>
 </head>
 <body>
@@ -21,6 +45,37 @@
     <h3><a href="index.html">Home</a></h3>
     <hr/>
     <h2>Meals</h2>
+    <div class="filter">
+        <form method="get" action="meals" name="filter">
+            <input type="hidden" name="action" value="filter">
+            <div class="row">
+                <div class="block">
+                    <label for="startDate">От даты<br>(включая)</label>
+                    <input type="date" name="startDate" id="startDate" value="<c:out value="${ param.startDate }"/>">
+                </div>
+                <div class="block">
+                    <label for="endDate">До даты<br>(включая)</label>
+                    <input type="date" name="endDate" id="endDate" value="<c:out value="${ param.endDate }"/>">
+                </div>
+                <div class="block">
+                    <label for="startTime">От времени<br>(включая)</label>
+                    <input type="time" name="startTime" id="startTime" value="<c:out value="${ param.startTime }"/>">
+                </div>
+                <div class="block">
+                    <label for="endTime">До времени<br>(исключая)</label>
+                    <input type="time" name="endTime" id="endTime" value="<c:out value="${ param.endTime }"/>">
+                </div>
+            </div>
+            <div class="row">
+                <div class="block">
+                    <button type="submit">Фильтровать</button>
+                </div>
+                <div class="block">
+                    <button type="reset">Отменить</button>
+                </div>
+            </div>
+        </form>
+    </div>
     <a href="meals?action=create">Add Meal</a>
     <br><br>
     <table border="1" cellpadding="8" cellspacing="0">
@@ -34,7 +89,7 @@
         </tr>
         </thead>
         <c:forEach items="${meals}" var="meal">
-            <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.MealTo"/>
+            <jsp:useBean id="meal" type="ru.javawebinar.topjava.to.MealTo"/>
             <tr class="${meal.excess ? 'excess' : 'normal'}">
                 <td>
                         <%--${meal.dateTime.toLocalDate()} ${meal.dateTime.toLocalTime()}--%>
