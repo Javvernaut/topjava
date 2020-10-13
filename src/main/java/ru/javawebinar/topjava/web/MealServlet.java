@@ -29,7 +29,6 @@ public class MealServlet extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-
         controller = appCtx.getBean(MealRestController.class);
     }
 

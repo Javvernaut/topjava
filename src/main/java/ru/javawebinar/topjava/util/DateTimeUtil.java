@@ -6,12 +6,12 @@ import java.time.format.DateTimeFormatter;
 public class DateTimeUtil {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-/*    public static boolean isBetweenHalfOpen(LocalTime lt, LocalTime startTime, LocalTime endTime) {
-        return lt.compareTo(startTime) >= 0 && lt.compareTo(endTime) < 0;
-    }*/
-
     public static <T extends Comparable<T>> boolean isBetweenHalfOpen(T curValue, T startValue, T endValue) {
         return curValue.compareTo(startValue) >= 0 && curValue.compareTo(endValue) < 0;
+    }
+
+    public static <T extends Comparable<T>> boolean isBetweenClose(T curValue, T startValue, T endValue) {
+        return curValue.compareTo(startValue) >= 0 && curValue.compareTo(endValue) <= 0;
     }
 
     public static String toString(LocalDateTime ldt) {

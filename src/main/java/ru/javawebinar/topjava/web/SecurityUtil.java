@@ -16,6 +16,4 @@ public class SecurityUtil {
     public static void setAuthUserId(int id) {
         userId = id;
     }
-
-
 }

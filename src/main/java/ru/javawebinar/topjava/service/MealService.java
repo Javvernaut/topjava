@@ -40,16 +40,16 @@ public class MealService {
         return result;
     }
 
-    public boolean delete(int mealId, int userId) {
-        boolean result = repository.delete(mealId, userId);
-        checkNotFoundWithId(result, mealId);
-        log.info("Meal with id={} deleted", mealId);
+    public boolean delete(int id, int userId) {
+        boolean result = repository.delete(id, userId);
+        checkNotFoundWithId(result, id);
+        log.info("Meal with id={} deleted", id);
         return true;
     }
 
-    public Meal get(int mealId, int userId) {
-        Meal result = repository.get(mealId, userId);
-        checkNotFoundWithId(result, mealId);
+    public Meal get(int id, int userId) {
+        Meal result = repository.get(id, userId);
+        checkNotFoundWithId(result, id);
         log.info("Gotten meal: {}", result);
         return result;
     }
@@ -60,8 +60,8 @@ public class MealService {
         return result;
     }
 
-    public List<Meal> getFiltered(int userId, Predicate<Meal> filter) {
-        List<Meal> result = new ArrayList<>(repository.getFiltered(userId, filter));
+    public List<Meal> getFiltered(int userId, LocalDate startDate, LocalDate endDate) {
+        List<Meal> result = new ArrayList<>(repository.getFiltered(userId, startDate, endDate));
         log.info("Filtered meals: {}", result);
         return result;
     }
