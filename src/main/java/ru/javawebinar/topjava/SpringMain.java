@@ -23,9 +23,7 @@ public class SpringMain {
 
             MealRestController mealRestController = appCtx.getBean(MealRestController.class);
             mealRestController.create(new Meal(LocalDateTime.now(), "sefdsef", 252));
-            //mealRestController.update(new Meal(3, LocalDateTime.now(), "edthhbdv", 400), 3);
             mealRestController.get(3);
-            //mealRestController.delete(5);
             mealRestController.getAll();
             mealRestController.getFiltered(LocalDate.MIN, LocalDate.parse("2020-01-31"), LocalTime.parse("17:00:00"), LocalTime.MAX);
         }

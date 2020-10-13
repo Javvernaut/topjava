@@ -51,19 +51,19 @@
             <div class="row">
                 <div class="block">
                     <label for="startDate">От даты<br>(включая)</label>
-                    <input type="date" name="startDate" id="startDate" value="<c:out value="${ param.startDate }"/>">
+                    <input type="date" name="startDate" id="startDate" value="${ param.startDate }">
                 </div>
                 <div class="block">
                     <label for="endDate">До даты<br>(включая)</label>
-                    <input type="date" name="endDate" id="endDate" value="<c:out value="${ param.endDate }"/>">
+                    <input type="date" name="endDate" id="endDate" value="${ param.endDate }">
                 </div>
                 <div class="block">
                     <label for="startTime">От времени<br>(включая)</label>
-                    <input type="time" name="startTime" id="startTime" value="<c:out value="${ param.startTime }"/>">
+                    <input type="time" name="startTime" id="startTime" value="${ param.startTime }">
                 </div>
                 <div class="block">
                     <label for="endTime">До времени<br>(исключая)</label>
-                    <input type="time" name="endTime" id="endTime" value="<c:out value="${ param.endTime }"/>">
+                    <input type="time" name="endTime" id="endTime" value="${ param.endTime }">
                 </div>
             </div>
             <div class="row">
@@ -71,7 +71,7 @@
                     <button type="submit">Фильтровать</button>
                 </div>
                 <div class="block">
-                    <button type="reset">Отменить</button>
+                    <button type="reset" onclick="window.location='meals'">Отменить</button>
                 </div>
             </div>
         </form>

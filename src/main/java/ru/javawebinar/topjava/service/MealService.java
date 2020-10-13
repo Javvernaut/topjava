@@ -5,12 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
-import ru.javawebinar.topjava.to.MealTo;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 import static org.slf4j.LoggerFactory.getLogger;
 import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFoundWithId;
@@ -55,14 +53,12 @@ public class MealService {
     }
 
     public List<Meal> getAll(int userId) {
-        List<Meal> result = new ArrayList<>(repository.getAll(userId));
-        log.info("All meals: {}", result);
-        return result;
+        log.info("Gotten all meals");
+        return new ArrayList<>(repository.getAll(userId));
     }
 
     public List<Meal> getFiltered(int userId, LocalDate startDate, LocalDate endDate) {
-        List<Meal> result = new ArrayList<>(repository.getFiltered(userId, startDate, endDate));
-        log.info("Filtered meals: {}", result);
-        return result;
+        log.info("Gotten filtered meals");
+        return new ArrayList<>(repository.getFiltered(userId, startDate, endDate));
     }
 }

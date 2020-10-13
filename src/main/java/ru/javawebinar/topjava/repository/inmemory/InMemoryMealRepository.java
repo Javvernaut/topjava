@@ -53,10 +53,7 @@ public class InMemoryMealRepository implements MealRepository {
 
     @Override
     public Collection<Meal> getAll(int userId) {
-        return repository.values().stream()
-                .filter(meal -> mealUser.get(meal.getId()) == userId)
-                .sorted(Comparator.comparing(Meal::getDate).reversed())
-                .collect(Collectors.toList());
+        return getFiltered(userId, LocalDate.MIN, LocalDate.MAX);
     }
 
     @Override
@@ -64,7 +61,10 @@ public class InMemoryMealRepository implements MealRepository {
         return repository.values().stream()
                 .filter(meal -> mealUser.get(meal.getId()) == userId)
                 .filter(meal -> DateTimeUtil.isBetweenClose(meal.getDate(), startDate, endDate))
-                .sorted(Comparator.comparing(Meal::getDate).reversed())
+                .sorted(Comparator
+                        .comparing(Meal::getDate)
+                        .thenComparing(Meal::getTime).reversed()
+                )
                 .collect(Collectors.toList());
     }
 
