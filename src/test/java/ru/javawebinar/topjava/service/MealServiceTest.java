@@ -10,19 +10,16 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.util.DateTimeUtil;
-import ru.javawebinar.topjava.util.Util;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Comparator;
+import java.time.Month;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
-import static ru.javawebinar.topjava.UserTestData.NOT_FOUND;
 
 @ContextConfiguration({
         "classpath:spring/spring-app.xml",
@@ -43,35 +40,29 @@ public class MealServiceTest {
 
     @Test
     public void get() throws Exception {
-        Meal actualMeal = service.get(100003, USER_ID);
-        Meal expectedMeal = meals.stream()
-                .filter(meal -> meal.getId() == 100003)
-                .findFirst()
-                .orElse(null);
-        assertMatch(actualMeal, expectedMeal);
+        assertMatch(service.get(MEAL_1.getId(), USER_ID), MEAL_1);
     }
 
     @Test
-    public void getAnothers() {
-        assertThrows(NotFoundException.class, () -> service.get(100003, ADMIN_ID));
+    public void getAnothers() throws Exception {
+        assertThrows(NotFoundException.class, () -> service.get(MEAL_2.getId(), ADMIN_ID));
     }
 
     @Test
     public void duplicateDateTimeCreate() throws Exception {
         assertThrows(DataAccessException.class, () ->
-                service.create(new Meal(LocalDateTime.parse("2020-01-31T00:00:00"), "Duplicate", 333), USER_ID));
+                service.create(new Meal(MEAL_4.getDateTime(), "Duplicate", 333), USER_ID));
     }
 
     @Test
     public void delete() throws Exception {
-        Integer id = meals.iterator().next().getId();
-        service.delete(id, USER_ID);
-        assertThrows(NotFoundException.class, () -> service.get(id, USER_ID));
+        service.delete(MEAL_2.getId(), USER_ID);
+        assertThrows(NotFoundException.class, () -> service.get(MEAL_2.getId(), USER_ID));
     }
 
     @Test
-    public void deleteAnothers() {
-        assertThrows(NotFoundException.class, () -> service.delete(100003, ADMIN_ID));
+    public void deleteAnothers() throws Exception {
+        assertThrows(NotFoundException.class, () -> service.delete(MEAL_5.getId(), ADMIN_ID));
     }
 
     @Test
@@ -81,27 +72,18 @@ public class MealServiceTest {
 
     @Test
     public void getBetweenInclusive() throws Exception {
-        LocalDate startDate = LocalDateTime.parse("2020-01-29T00:00:00").toLocalDate();
-        LocalDate endDate = LocalDateTime.parse("2020-01-30T00:00:00").toLocalDate();
-        List<Meal> actualMeals = service.getBetweenInclusive(startDate, endDate, USER_ID);
-        List<Meal> expectedMeals = meals.stream()
-                .filter(meal -> Util.isBetweenHalfOpen(
-                        meal.getDateTime(),
-                        DateTimeUtil.atStartOfDayOrMin(startDate),
-                        DateTimeUtil.atStartOfNextDayOrMax(endDate))
-                )
-                .sorted(Comparator.comparing(Meal::getDateTime).reversed())
-                .collect(Collectors.toList());
-        assertMatch(actualMeals, expectedMeals);
+        LocalDate startDate = LocalDateTime.of(2020, Month.JANUARY, 31, 0, 0, 0).toLocalDate();
+        LocalDate endDate = LocalDateTime.of(2020, Month.JANUARY, 31, 0, 0, 0).toLocalDate();
+        List<Meal> actual = service.getBetweenInclusive(startDate, endDate, USER_ID);
+        List<Meal> expected = Arrays.asList(MEAL_6, MEAL_5, MEAL_4, MEAL_3);
+        assertMatch(actual, expected);
     }
 
     @Test
     public void getAll() throws Exception {
-        List<Meal> actualMeals = service.getAll(USER_ID);
-        List<Meal> expectedMeals = meals.stream()
-                .sorted(Comparator.comparing(Meal::getDateTime).reversed())
-                .collect(Collectors.toList());
-        assertMatch(actualMeals, expectedMeals);
+        List<Meal> actual = service.getAll(USER_ID);
+        List<Meal> expected = Arrays.asList(MEAL_6, MEAL_5, MEAL_4, MEAL_3, MEAL_2, MEAL_1, MEAL_0);
+        assertMatch(actual, expected);
     }
 
     @Test
@@ -112,7 +94,7 @@ public class MealServiceTest {
     }
 
     @Test
-    public void updateAnothers() {
+    public void updateAnothers() throws Exception {
         Meal updated = getUpdated();
         assertThrows(NotFoundException.class, () -> service.update(updated, ADMIN_ID));
     }
