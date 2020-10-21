@@ -40,29 +40,29 @@ public class MealServiceTest {
 
     @Test
     public void get() throws Exception {
-        assertMatch(service.get(MEAL_1.getId(), USER_ID), MEAL_1);
+        assertMatch(service.get(meal_1.getId(), USER_ID), meal_1);
     }
 
     @Test
     public void getAnothers() throws Exception {
-        assertThrows(NotFoundException.class, () -> service.get(MEAL_2.getId(), ADMIN_ID));
+        assertThrows(NotFoundException.class, () -> service.get(meal_2.getId(), ADMIN_ID));
     }
 
     @Test
     public void duplicateDateTimeCreate() throws Exception {
         assertThrows(DataAccessException.class, () ->
-                service.create(new Meal(MEAL_4.getDateTime(), "Duplicate", 333), USER_ID));
+                service.create(new Meal(meal_4.getDateTime(), "Duplicate", 333), USER_ID));
     }
 
     @Test
     public void delete() throws Exception {
-        service.delete(MEAL_2.getId(), USER_ID);
-        assertThrows(NotFoundException.class, () -> service.get(MEAL_2.getId(), USER_ID));
+        service.delete(meal_2.getId(), USER_ID);
+        assertThrows(NotFoundException.class, () -> service.get(meal_2.getId(), USER_ID));
     }
 
     @Test
     public void deleteAnothers() throws Exception {
-        assertThrows(NotFoundException.class, () -> service.delete(MEAL_5.getId(), ADMIN_ID));
+        assertThrows(NotFoundException.class, () -> service.delete(meal_5.getId(), ADMIN_ID));
     }
 
     @Test
@@ -75,14 +75,14 @@ public class MealServiceTest {
         LocalDate startDate = LocalDateTime.of(2020, Month.JANUARY, 31, 0, 0, 0).toLocalDate();
         LocalDate endDate = LocalDateTime.of(2020, Month.JANUARY, 31, 0, 0, 0).toLocalDate();
         List<Meal> actual = service.getBetweenInclusive(startDate, endDate, USER_ID);
-        List<Meal> expected = Arrays.asList(MEAL_6, MEAL_5, MEAL_4, MEAL_3);
+        List<Meal> expected = Arrays.asList(meal_6, meal_5, meal_4, meal_3);
         assertMatch(actual, expected);
     }
 
     @Test
     public void getAll() throws Exception {
         List<Meal> actual = service.getAll(USER_ID);
-        List<Meal> expected = Arrays.asList(MEAL_6, MEAL_5, MEAL_4, MEAL_3, MEAL_2, MEAL_1, MEAL_0);
+        List<Meal> expected = Arrays.asList(meal_6, meal_5, meal_4, meal_3, meal_2, meal_1, meal_0);
         assertMatch(actual, expected);
     }
 
