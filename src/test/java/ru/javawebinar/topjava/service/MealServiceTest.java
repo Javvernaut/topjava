@@ -1,7 +1,13 @@
 package ru.javawebinar.topjava.service;
 
+import org.junit.AfterClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ContextConfiguration;
@@ -13,8 +19,11 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertThrows;
+import static org.slf4j.LoggerFactory.getLogger;
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
 import static ru.javawebinar.topjava.UserTestData.USER_ID;
@@ -26,6 +35,35 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
+    private static final Logger log = getLogger("testMessagesLogger");
+    private static final List<String> messages = new ArrayList<>();
+
+    @Rule
+    public TestRule watcher = new TestWatcher() {
+        private long time;
+
+        @Override
+        protected void starting(Description description) {
+            time = System.currentTimeMillis();
+        }
+
+        @Override
+        protected void finished(Description description) {
+            String logMessage = String.format(
+                    "\033[0;36m%s \033[0;34mcompleted in \033[0;31m%d \033[0;34mms\033[0m",
+                    description.getMethodName(),
+                    System.currentTimeMillis() - time);
+            log.info(logMessage);
+            messages.add(logMessage);
+        }
+    };
+
+    @AfterClass
+    public static void afterClass() {
+        log.info("\033[0;30m-----------------------SUMMARY-----------------------\033[0m");
+        messages.forEach(log::info);
+        log.info("\033[0;30m-----------------------------------------------------\033[0m");
+    }
 
     @Autowired
     private MealService service;
