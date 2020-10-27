@@ -39,6 +39,9 @@ public class MealServiceTest {
     private static final Logger log = getLogger("testMessagesLogger");
     private static final List<String> messages = new ArrayList<>();
 
+    @Autowired
+    private MealService service;
+
     @Rule
     public TestRule watcher = new Stopwatch() {
         @Override
@@ -53,9 +56,6 @@ public class MealServiceTest {
     public static void afterClass() {
         log.info("\n" + String.join("", messages));
     }
-
-    @Autowired
-    private MealService service;
 
     @Test
     public void delete() throws Exception {
