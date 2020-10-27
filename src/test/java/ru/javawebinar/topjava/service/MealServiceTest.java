@@ -3,8 +3,8 @@ package ru.javawebinar.topjava.service;
 import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Stopwatch;
 import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertThrows;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -39,30 +40,18 @@ public class MealServiceTest {
     private static final List<String> messages = new ArrayList<>();
 
     @Rule
-    public TestRule watcher = new TestWatcher() {
-        private long time;
-
+    public TestRule watcher = new Stopwatch() {
         @Override
-        protected void starting(Description description) {
-            time = System.currentTimeMillis();
-        }
-
-        @Override
-        protected void finished(Description description) {
-            String logMessage = String.format(
-                    "\033[0;36m%s \033[0;34mcompleted in \033[0;31m%d \033[0;34mms\033[0m",
-                    description.getMethodName(),
-                    System.currentTimeMillis() - time);
-            log.info(logMessage);
-            messages.add(logMessage);
+        protected void succeeded(long nanos, Description description) {
+            String message = String.format("%-25s %6d ms\n", description.getMethodName(), TimeUnit.NANOSECONDS.toMillis(nanos));
+            log.info(message);
+            messages.add(message);
         }
     };
 
     @AfterClass
     public static void afterClass() {
-        log.info("\033[0;30m-----------------------SUMMARY-----------------------\033[0m");
-        messages.forEach(log::info);
-        log.info("\033[0;30m-----------------------------------------------------\033[0m");
+        log.info("\n" + String.join("", messages));
     }
 
     @Autowired
