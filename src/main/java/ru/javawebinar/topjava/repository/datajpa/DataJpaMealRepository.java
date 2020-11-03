@@ -14,12 +14,12 @@ import java.util.List;
 public class DataJpaMealRepository implements MealRepository {
 
     private static final Sort sortDateTimeDesc = Sort.by(Sort.Direction.DESC, "dateTime");
-    private final CrudMealRepository crudRepository;
+    private final CrudMealRepository mealRepository;
     private final CrudUserRepository userRepository;
 
     @Autowired
-    public DataJpaMealRepository(CrudMealRepository crudRepository, CrudUserRepository userRepository) {
-        this.crudRepository = crudRepository;
+    public DataJpaMealRepository(CrudMealRepository mealRepository, CrudUserRepository userRepository) {
+        this.mealRepository = mealRepository;
         this.userRepository = userRepository;
     }
 
@@ -30,30 +30,35 @@ public class DataJpaMealRepository implements MealRepository {
         if (!meal.isNew() && meal.getId() != null && get(meal.getId(), userId) == null) {
             return null;
         }
-        return crudRepository.save(meal);
+        return mealRepository.save(meal);
     }
 
     @Override
     public boolean delete(int id, int userId) {
-        return crudRepository.removeByIdAndUserId(id, userId) != 0;
+        return mealRepository.removeByIdAndUserId(id, userId) != 0;
     }
 
     @Override
     public Meal get(int id, int userId) {
-        return crudRepository.findByIdAndUserId(id, userId);
+        return mealRepository.findByIdAndUserId(id, userId);
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-        return crudRepository.findAllByUserId(userId, sortDateTimeDesc);
+        return mealRepository.findAllByUserId(userId, sortDateTimeDesc);
     }
 
     @Override
     public List<Meal> getBetweenHalfOpen(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId) {
-        return crudRepository.findAllByDateTimeGreaterThanEqualAndDateTimeLessThanAndUserId(
+        return mealRepository.findAllByDateTimeGreaterThanEqualAndDateTimeLessThanAndUserId(
                 startDateTime,
                 endDateTime,
                 userId,
                 sortDateTimeDesc);
+    }
+
+    @Override
+    public Meal getWithUser(int id, int userId) {
+        return mealRepository.findByIdFetchUser(id, userId);
     }
 }
