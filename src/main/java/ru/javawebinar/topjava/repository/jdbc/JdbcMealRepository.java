@@ -13,7 +13,7 @@ import ru.javawebinar.topjava.repository.MealRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public abstract class JdbcMealRepository implements MealRepository {
+public abstract class JdbcMealRepository<T> implements MealRepository {
 
     private static final RowMapper<Meal> ROW_MAPPER = BeanPropertyRowMapper.newInstance(Meal.class);
 
@@ -46,9 +46,9 @@ public abstract class JdbcMealRepository implements MealRepository {
             meal.setId(newId.intValue());
         } else {
             if (namedParameterJdbcTemplate.update("" +
-                            "UPDATE meals " +
-                            "   SET description=:description, calories=:calories, date_time=:date_time " +
-                            " WHERE id=:id AND user_id=:user_id", map) == 0) {
+                    "UPDATE meals " +
+                    "   SET description=:description, calories=:calories, date_time=:date_time " +
+                    " WHERE id=:id AND user_id=:user_id", map) == 0) {
                 return null;
             }
         }
@@ -80,5 +80,5 @@ public abstract class JdbcMealRepository implements MealRepository {
                 ROW_MAPPER, userId, dateTimeSwitcher(startDateTime), dateTimeSwitcher(endDateTime));
     }
 
-    protected abstract Object dateTimeSwitcher(LocalDateTime localDateTime);
+    protected abstract T dateTimeSwitcher(LocalDateTime localDateTime);
 }
