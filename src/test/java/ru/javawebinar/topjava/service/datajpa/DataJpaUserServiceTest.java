@@ -1,24 +1,20 @@
 package ru.javawebinar.topjava.service.datajpa;
 
-import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import ru.javawebinar.topjava.Profiles;
+import ru.javawebinar.topjava.UserTestData;
 import ru.javawebinar.topjava.model.User;
-import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.service.UserServiceTest;
 
 import java.util.List;
 
-import static ru.javawebinar.topjava.MealTestData.*;
+import static ru.javawebinar.topjava.MealTestData.MEAL_MATCHER;
+import static ru.javawebinar.topjava.MealTestData.adminMeals;
 import static ru.javawebinar.topjava.UserTestData.*;
 
 @ActiveProfiles(Profiles.DATAJPA)
 public class DataJpaUserServiceTest extends UserServiceTest {
-
-    @Autowired
-    MealService mealService;
 
     @Test
     public void getWithMeals() {
@@ -29,12 +25,8 @@ public class DataJpaUserServiceTest extends UserServiceTest {
 
     @Test
     public void getWithoutMeals() {
-        User expectedUser = new User(admin);
-        expectedUser.setMeals(List.of());
-        mealService.delete(adminMeal1.getId(), expectedUser.getId());
-        mealService.delete(adminMeal2.getId(), expectedUser.getId());
-        User actualUser = service.getWithMeals(expectedUser.getId());
-        USER_MATCHER.assertMatch(actualUser, expectedUser);
-        Assert.assertEquals(actualUser.getMeals().size(), expectedUser.getMeals().size());
+        User newUser = UserTestData.getNew();
+        User actualUser = service.create(newUser);
+        MEAL_MATCHER.assertMatch(service.getWithMeals(actualUser.getId()).getMeals(), List.of());
     }
 }
