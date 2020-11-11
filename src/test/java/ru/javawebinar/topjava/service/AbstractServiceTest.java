@@ -1,10 +1,15 @@
 package ru.javawebinar.topjava.service;
 
+import org.junit.Assume;
+import org.junit.AssumptionViolatedException;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.rules.ExternalResource;
 import org.junit.rules.Stopwatch;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
@@ -27,9 +32,19 @@ abstract public class AbstractServiceTest {
 
     @ClassRule
     public static ExternalResource summary = TimingRules.SUMMARY;
-
     @Rule
     public Stopwatch stopwatch = TimingRules.STOPWATCH;
+    @Autowired
+    Environment environment;
+
+    public boolean isNotActiveJdbcProfile() {
+        try {
+            Assume.assumeTrue(environment.acceptsProfiles(Profiles.of(ru.javawebinar.topjava.Profiles.JDBC)));
+        } catch (AssumptionViolatedException e) {
+            return true;
+        }
+        return false;
+    }
 
     //  Check root cause in JUnit: https://github.com/junit-team/junit4/pull/778
     public <T extends Throwable> void validateRootCause(Runnable runnable, Class<T> rootExceptionClass) {
