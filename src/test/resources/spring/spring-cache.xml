@@ -5,9 +5,9 @@
        xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd   http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
 
-    <cache:annotation-driven cache-manager="ehCacheManager"/>
+    <cache:annotation-driven cache-manager="NoOpCacheManager"/>
 
-    <bean id="ehCacheManager" class="org.springframework.cache.support.NoOpCacheManager"/>
+    <bean id="NoOpCacheManager" class="org.springframework.cache.support.NoOpCacheManager"/>
     <beans profile="datajpa, jpa">
         <context:property-override location="cache.properties"/>
     </beans>

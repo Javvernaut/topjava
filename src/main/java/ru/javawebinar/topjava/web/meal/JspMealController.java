@@ -44,8 +44,7 @@ public class JspMealController extends AbstractMealController {
     }
 
     @GetMapping("delete/{id}")
-    public String delete(@PathVariable("id") int id,
-                         Model model) {
+    public String getDelete(@PathVariable("id") int id) {
         delete(id);
         return "redirect:/meals";
     }
@@ -62,24 +61,15 @@ public class JspMealController extends AbstractMealController {
 
     @PostMapping
     public String post(HttpServletRequest request) {
-        Meal meal = getMeal(request);
-        if (!StringUtils.hasText(request.getParameter("id"))) {
-            create(meal);
-        } else {
-            update(meal, getId(request));
-        }
-        return "redirect:/meals";
-    }
-
-    private Meal getMeal(HttpServletRequest request) {
-        return new Meal(
+        Meal meal = new Meal(
                 LocalDateTime.parse(request.getParameter("dateTime")),
                 request.getParameter("description"),
                 Integer.parseInt(request.getParameter("calories")));
-    }
-
-    private int getId(HttpServletRequest request) {
-        String paramId = Objects.requireNonNull(request.getParameter("id"));
-        return Integer.parseInt(paramId);
+        if (!StringUtils.hasText(request.getParameter("id"))) {
+            create(meal);
+        } else {
+            update(meal, Integer.parseInt(Objects.requireNonNull(request.getParameter("id"))));
+        }
+        return "redirect:/meals";
     }
 }
