@@ -2,7 +2,6 @@ package ru.javawebinar.topjava.repository.jdbc;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.support.DataAccessUtils;
-import org.springframework.data.util.Pair;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,10 +18,7 @@ import ru.javawebinar.topjava.util.ValidationUtil;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Repository
 @Transactional(readOnly = true)
@@ -75,59 +71,56 @@ public class JdbcUserRepository implements UserRepository {
 
     @Override
     public User get(int id) {
-        List<User> users = jdbcTemplate.query("SELECT * FROM users JOIN user_roles ON users.id = user_roles.user_id WHERE id=?", JdbcUserRepository::userMapper, id);
+        List<User> users = jdbcTemplate.query("SELECT * FROM users LEFT JOIN user_roles ON users.id = user_roles.user_id WHERE id=?", JdbcUserRepository::userMapper, id);
         return DataAccessUtils.singleResult(users);
     }
 
     @Override
     public User getByEmail(String email) {
 //        return jdbcTemplate.queryForObject("SELECT * FROM users WHERE email=?", ROW_MAPPER, email);
-        List<User> users = jdbcTemplate.query("SELECT * FROM users JOIN user_roles ON users.id = user_roles.user_id WHERE email=?", JdbcUserRepository::userMapper, email);
+        List<User> users = jdbcTemplate.query("SELECT * FROM users LEFT JOIN user_roles ON users.id = user_roles.user_id WHERE email=?", JdbcUserRepository::userMapper, email);
         return DataAccessUtils.singleResult(users);
     }
 
     @Override
     public List<User> getAll() {
-        return jdbcTemplate.query("SELECT * FROM users JOIN user_roles ON users.id = user_roles.user_id ORDER BY name, email", JdbcUserRepository::userMapper);
+        return jdbcTemplate.query("SELECT * FROM users LEFT JOIN user_roles ON users.id = user_roles.user_id ORDER BY name, email", JdbcUserRepository::userMapper);
     }
 
     private static List<User> userMapper(ResultSet rs) throws SQLException {
-        List<User> users = new ArrayList<>();
-        User currentUser = null;
+        Map<Integer, User> usersMap = new LinkedHashMap<>();
         while (rs.next()) {
-            int id = rs.getInt("id");
-            if (currentUser == null || currentUser.getId() != id) {
-                currentUser = ROW_MAPPER.mapRow(rs, rs.getRow());
-            }
-            if (currentUser.getRoles() == null) {
-                Set<Role> roles = EnumSet.noneOf(Role.class);
-                roles.add(Role.valueOf(rs.getObject("role", String.class)));
-                currentUser.setRoles(roles);
-            } else {
-                currentUser.getRoles().add(Role.valueOf(rs.getObject("role", String.class)));
-            }
-            if (!users.contains(currentUser)) {
-                users.add(currentUser);
-            }
+            User newUser = ROW_MAPPER.mapRow(rs, rs.getRow());
+            newUser.setRoles(rs.getString("role") == null ? Set.of() : EnumSet.of(Role.valueOf(rs.getString("role"))));
+            usersMap.computeIfPresent(newUser.getId(), (id, existedUser) -> {
+                Set<Role> roles = existedUser.getRoles();
+                roles.addAll(newUser.getRoles());
+                existedUser.setRoles(roles);
+                return existedUser;
+            });
+            usersMap.putIfAbsent(newUser.getId(), newUser);
         }
-        return users;
+        return new ArrayList<>(usersMap.values());
     }
 
     private void saveRoles(User user) {
-        ValidationUtil.validate(user);
-        List<Pair<Integer, String>> rolesPairs = new ArrayList<>();
-        user.getRoles().forEach(r -> rolesPairs.add(Pair.of(user.getId(), r.toString())));
-        jdbcTemplate.batchUpdate("INSERT INTO user_roles values (?,?)", new BatchPreparedStatementSetter() {
-            @Override
-            public void setValues(PreparedStatement ps, int i) throws SQLException {
-                ps.setInt(1, rolesPairs.get(i).getFirst());
-                ps.setString(2, rolesPairs.get(i).getSecond());
-            }
+        if (user.getRoles() == null) {
+            user.setRoles(Set.of());
+        }
+        List<Role> roles = new ArrayList<>(user.getRoles());
+        if (!roles.isEmpty()) {
+            jdbcTemplate.batchUpdate("INSERT INTO user_roles(user_id, role) values (?,?)", new BatchPreparedStatementSetter() {
+                @Override
+                public void setValues(PreparedStatement ps, int i) throws SQLException {
+                    ps.setInt(1, user.getId());
+                    ps.setString(2, roles.get(i).name());
+                }
 
-            @Override
-            public int getBatchSize() {
-                return rolesPairs.size();
-            }
-        });
+                @Override
+                public int getBatchSize() {
+                    return roles.size();
+                }
+            });
+        }
     }
 }

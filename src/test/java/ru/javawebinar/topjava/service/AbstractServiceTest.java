@@ -27,6 +27,7 @@ abstract public class AbstractServiceTest {
 
     @ClassRule
     public static ExternalResource summary = TimingRules.SUMMARY;
+
     @Rule
     public Stopwatch stopwatch = TimingRules.STOPWATCH;
 

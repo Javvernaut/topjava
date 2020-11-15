@@ -7,10 +7,9 @@
 <body>
 <jsp:include page="fragments/bodyHeader.jsp"/>
 <section>
-
-    <h2><spring:message code="${action == 'create' ? 'mealedit.add' : 'mealedit.update'}"/></h2>
     <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.Meal" scope="request"/>
-    <form method="post">
+    <h2><spring:message code="${empty meal.id ? 'mealedit.add' : 'mealedit.update'}"/></h2>
+    <form method="post" action="meals">
         <input type="hidden" name="id" value="${meal.id}">
         <dl>
             <dt><spring:message code="common.datetime"/></dt>
