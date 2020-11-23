@@ -20,6 +20,10 @@ public class TestMatcher<T> {
         return new TestMatcher<>(clazz, fieldsToIgnore);
     }
 
+    public static <T> TestMatcher<T> getGenericMatcher(Class<T> clazz) {
+        return new TestMatcher<>(clazz);
+    }
+
     public void assertMatch(T actual, T expected) {
         assertThat(actual).usingRecursiveComparison().ignoringFields(fieldsToIgnore).isEqualTo(expected);
     }
