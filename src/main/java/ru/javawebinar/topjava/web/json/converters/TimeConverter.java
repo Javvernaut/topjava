@@ -8,15 +8,6 @@ import java.time.LocalTime;
 
 final class TimeConverter implements Converter<String, LocalTime> {
 
-    private static final TimeConverter INSTANCE = new TimeConverter();
-
-    private TimeConverter() {
-    }
-
-    public static TimeConverter getInstance() {
-        return INSTANCE;
-    }
-
     @Override
     public @Nullable
     LocalTime convert(@Nullable String source) {

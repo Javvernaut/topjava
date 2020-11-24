@@ -8,12 +8,6 @@ import java.time.LocalDate;
 
 final class DateConverter implements Converter<String, LocalDate> {
 
-    private static final DateConverter INSTANCE = new DateConverter();
-
-    public static DateConverter getInstance() {
-        return INSTANCE;
-    }
-
     @Override
     public @Nullable
     LocalDate convert(@Nullable String source) {
