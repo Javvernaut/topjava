@@ -43,3 +43,13 @@ $(function () {
     };
     makeEditable();
 });
+
+function enable(checkbox) {
+    $.ajax({
+        type: "POST",
+        url: ctx.ajaxUrl + checkbox.closest("tr").attr("id"),
+        data: { enabled: checkbox.is(':checked') }
+    }).done(function () {
+        checkbox.closest("tr").attr("user-enabled", checkbox.is(':checked'))
+    });
+}
