@@ -37,14 +37,14 @@ function updateTable() {
     });
 }
 
-function save() {
+function save(fn) {
     $.ajax({
         type: "POST",
         url: ctx.ajaxUrl,
         data: form.serialize()
     }).done(function () {
         $("#editRow").modal("hide");
-        updateTable();
+        fn();
         successNoty("Saved");
     });
 }

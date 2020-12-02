@@ -1,11 +1,9 @@
 var ctx;
 
-let ajaxUrl = "profile/meals/";
-
 $(function () {
     ctx = {
-        ajaxUrl,
-        datatableApi: $("#dataTable").DataTable( {
+        ajaxUrl: "profile/meals/",
+        datatableApi: $("#dataTable").DataTable({
             paging: false,
             info: true,
             columns: [
@@ -39,25 +37,25 @@ $(function () {
     makeEditable();
 })
 
-function saveMeal() {
+/*function saveMeal() {
     $.ajax({
         type: "POST",
-        url: ajaxUrl,
+        url: ctx.ajaxUrl,
         data: $('#detailsForm').serialize(),
     }).done(function () {
         $("#editRow").modal("hide");
         filter();
         successNoty("Saved")
     })
-}
+}*/
 
 function filter() {
     $.ajax({
         type: "GET",
-        url: ajaxUrl + "filter",
+        url: ctx.ajaxUrl + "filter",
         data: $('#filterForm').serialize()
-        }).done(function (data) {
-            ctx.datatableApi.clear().rows.add(data).draw()
+    }).done(function (data) {
+        ctx.datatableApi.clear().rows.add(data).draw()
     });
 }
 

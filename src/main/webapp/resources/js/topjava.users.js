@@ -48,8 +48,10 @@ function enable(checkbox) {
     $.ajax({
         type: "POST",
         url: ctx.ajaxUrl + checkbox.closest("tr").attr("id"),
-        data: { enabled: checkbox.is(':checked') }
+        data: {enabled: checkbox.is(':checked')}
     }).done(function () {
         checkbox.closest("tr").attr("user-enabled", checkbox.is(':checked'))
-    });
+    }).fail(function () {
+        checkbox.prop("checked", !checkbox.is(':checked'))
+    })
 }
