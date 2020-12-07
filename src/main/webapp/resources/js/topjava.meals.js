@@ -1,5 +1,18 @@
 var ctx, mealAjaxUrl = "profile/meals/";
 
+$.ajaxSetup({
+    converters: {
+        "text json": function (data) {
+            let inputJson = JSON.parse(data);
+            $(inputJson).each(function () {
+                let dateTimeSplit = this.dateTime.split('T');
+                this.dateTime = dateTimeSplit[0] + " " + dateTimeSplit[1].substring(0, 5)
+            })
+            return inputJson;
+        }
+    }
+})
+
 function updateFilteredTable() {
     $.ajax({
         type: "GET",
@@ -25,11 +38,7 @@ $(function () {
             "info": true,
             "columns": [
                 {
-                    "data": "dateTime",
-                    "render": function (data, type) {
-                        let dateSplit = data.split('T');
-                        return type === 'display' ? dateSplit[0] + " " + dateSplit[1].substring(0, 5) : data;
-                    }
+                    "data": "dateTime"
                 },
                 {
                     "data": "description"
@@ -62,3 +71,39 @@ $(function () {
     };
     makeEditable();
 });
+
+$.datetimepicker.setLocale(locale === 'ru' ? 'ru' : 'en');
+
+$(function () {
+    $('#startDate').datetimepicker({
+        timepicker: false,
+        format: 'Y-m-d'
+    });
+})
+
+$(function () {
+    $('#endDate').datetimepicker({
+        timepicker: false,
+        format: 'Y-m-d'
+    })
+})
+
+$(function () {
+    $('#startTime').datetimepicker({
+        datepicker:false,
+        format: 'H:i'
+    })
+})
+
+$(function () {
+    $('#endTime').datetimepicker({
+        datepicker:false,
+        format: 'H:i'
+    })
+})
+
+$(function () {
+    $('#dateTime').datetimepicker({
+        format: 'Y-m-d H:i'
+    })
+})
