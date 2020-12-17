@@ -2,11 +2,16 @@ package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +32,13 @@ import static ru.javawebinar.topjava.util.exception.ErrorType.*;
 public class ExceptionInfoHandler {
     private static Logger log = LoggerFactory.getLogger(ExceptionInfoHandler.class);
 
+    MessageSource messageSource;
+
+    @Autowired
+    public ExceptionInfoHandler(MessageSource messageSource) {
+        this.messageSource = messageSource;
+    }
+
     //  http://stackoverflow.com/a/22358422/548473
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     @ExceptionHandler(NotFoundException.class)
@@ -46,6 +58,16 @@ public class ExceptionInfoHandler {
         return logAndGetErrorInfo(req, e, false, VALIDATION_ERROR);
     }
 
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY) //422
+    @ExceptionHandler({BindException.class})
+    public ErrorInfo bindingErrors(HttpServletRequest req, Exception e) {
+        BindingResult bindingResult = (BindingResult) e;
+        String[] message = bindingResult.getFieldErrors().stream()
+                .map(error -> "[" + error.getField() + "] " + error.getDefaultMessage())
+                .toArray(String[]::new);
+        return logAndGetErrorInfo(req, e, true, VALIDATION_ERROR, message);
+    }
+
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     public ErrorInfo handleError(HttpServletRequest req, Exception e) {
@@ -53,13 +75,16 @@ public class ExceptionInfoHandler {
     }
 
     //    https://stackoverflow.com/questions/538870/should-private-helper-methods-be-static-if-they-can-be-static
-    private static ErrorInfo logAndGetErrorInfo(HttpServletRequest req, Exception e, boolean logException, ErrorType errorType) {
+    private ErrorInfo logAndGetErrorInfo(HttpServletRequest req, Exception e, boolean logException, ErrorType errorType, String ... messages) {
         Throwable rootCause = ValidationUtil.getRootCause(e);
         if (logException) {
             log.error(errorType + " at request " + req.getRequestURL(), rootCause);
         } else {
-            log.warn("{} at request  {}: {}", errorType, req.getRequestURL(), rootCause.toString());
+            log.warn("{} at request  {}: {}", errorType, req.getRequestURL(), rootCause);
         }
-        return new ErrorInfo(req.getRequestURL(), errorType, rootCause.toString());
+
+        String i18nTypeInfo = messageSource.getMessage(errorType.getTypeInfo(), null, LocaleContextHolder.getLocale());
+        String[] details = messages.length == 0 ? new String[]{rootCause.toString()} : messages;
+        return new ErrorInfo(req.getRequestURL(), i18nTypeInfo, details);
     }
 }

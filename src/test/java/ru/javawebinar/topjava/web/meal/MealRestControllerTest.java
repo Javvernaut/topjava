@@ -3,6 +3,7 @@ package ru.javawebinar.topjava.web.meal;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -30,6 +31,9 @@ class MealRestControllerTest extends AbstractControllerTest {
 
     @Autowired
     private MealService mealService;
+
+    @Autowired
+    private MessageSource messageSource;
 
     @Test
     void get() throws Exception {
@@ -94,6 +98,28 @@ class MealRestControllerTest extends AbstractControllerTest {
         newMeal.setId(newId);
         MEAL_MATCHER.assertMatch(created, newMeal);
         MEAL_MATCHER.assertMatch(mealService.get(newId, USER_ID), newMeal);
+    }
+
+    @Test
+    void createInvalidData() throws Exception {
+        Meal newMeal = getNew();
+        newMeal.setCalories(0);
+        ResultActions action = perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(newMeal))
+                .with(userHttpBasic(user)))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    void updateInvalidData() throws Exception {
+        Meal updatedMeal = getUpdated();
+        updatedMeal.setDescription("");
+        ResultActions action = perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(updatedMeal))
+                .with(userHttpBasic(user)))
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test

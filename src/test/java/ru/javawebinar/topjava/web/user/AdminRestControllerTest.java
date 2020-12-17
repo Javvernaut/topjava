@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.javawebinar.topjava.UserTestData;
+import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.service.UserService;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
@@ -17,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.javawebinar.topjava.MealTestData.getNew;
 import static ru.javawebinar.topjava.TestUtil.readFromJson;
 import static ru.javawebinar.topjava.TestUtil.userHttpBasic;
 import static ru.javawebinar.topjava.UserTestData.*;
@@ -112,6 +114,28 @@ class AdminRestControllerTest extends AbstractControllerTest {
         newUser.setId(newId);
         USER_MATCHER.assertMatch(created, newUser);
         USER_MATCHER.assertMatch(userService.get(newId), newUser);
+    }
+
+    @Test
+    void createInvalidData() throws Exception {
+        User newUser = UserTestData.getNew();
+        newUser.setEmail("");
+        ResultActions action = perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(newUser))
+                .with(userHttpBasic(admin)))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    void updateInvalidData() throws Exception {
+        User updatedUser = UserTestData.getUpdated();
+        updatedUser.setName("");
+        ResultActions action = perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(updatedUser))
+                .with(userHttpBasic(admin)))
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
